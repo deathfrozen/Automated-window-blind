@@ -1,0 +1,122 @@
+esphome:
+  name: blind
+
+esp8266:
+  board: esp12e
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  use_address: !secret blind_ip
+  ap:
+    ssid: "Blind Setup"
+
+
+substitutions:
+  device_name: blind
+  friendly_name: blind
+  device_description: "blind control on my cabinet"
+
+web_server:
+  port: 80
+  
+captive_portal:
+
+logger:
+
+api:
+
+ota:
+  platform: esphome
+
+sensor:
+  - platform: wifi_signal
+    name: "Blind WiFi Signal Sensor"
+    update_interval: 10s
+    
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: 2
+      mode: INPUT_PULLUP
+    name: "left_endstop_up"
+    id: left_endstop_up
+    filters:
+      - invert:
+      - delayed_on: 10ms
+  - platform: gpio
+    pin: 
+      number: 3
+      mode: INPUT_PULLUP
+    name: "left_endstop_down"
+    id: left_endstop_down
+    filters:
+      - invert:
+      - delayed_on: 10ms
+  - platform: gpio
+    pin: 
+      number: 5
+      mode: INPUT_PULLUP
+    name: "right_endstop_up"
+    id: right_endstop_up
+    filters:
+      - invert:
+      - delayed_on: 10ms
+  - platform: gpio
+    pin: 
+      number: 4
+      mode: INPUT_PULLUP
+    name: "right_endstop_down"
+    id: right_endstop_down
+    filters:
+      - invert:
+      - delayed_on: 10ms
+    
+    
+output:
+  - platform: gpio
+    pin: 12
+    id: clockwise
+  - platform: gpio
+    pin: 13
+    id: anticlockwise
+  - platform: gpio
+    pin: 16
+    id: clockwise1
+  - platform: gpio
+    pin: 14
+    id: anticlockwise1
+    
+cover:
+  - platform: endstop
+    name: "blind left"
+    id: rolgordijn
+    open_action:
+      - output.turn_on: clockwise
+      - output.turn_off: anticlockwise
+    open_endstop: left_endstop_up
+    open_duration: 17s
+    close_action:
+      - output.turn_off: clockwise
+      - output.turn_on: anticlockwise
+    close_endstop: left_endstop_down
+    close_duration: 17s
+    stop_action:
+      - output.turn_off: clockwise
+      - output.turn_off: anticlockwise
+  - platform: endstop
+    name: "blind right"
+    id: rolgordijn1
+    open_action:
+      - output.turn_on: clockwise1
+      - output.turn_off: anticlockwise1
+    open_endstop: right_endstop_up
+    open_duration: 17s
+    close_action:
+      - output.turn_off: clockwise1
+      - output.turn_on: anticlockwise1
+    close_endstop: right_endstop_down
+    close_duration: 17s
+    stop_action:
+      - output.turn_off: clockwise1
+      - output.turn_off: anticlockwise1
